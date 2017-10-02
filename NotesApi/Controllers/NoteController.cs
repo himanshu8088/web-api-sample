@@ -30,28 +30,42 @@ namespace NotesApi.Controllers
         {
             var note = (from n in _context.Notes
                        where n.Id == id
-                       select n).FirstOrDefault();
+                       select n).FirstOrDefault();            
             return note;
         }
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]Note note)
+        public IActionResult Post([FromBody]Note note)
         {
+            if (ModelState.IsValid == false)
+                return BadRequest();
             _context.Notes.Add(note);
             _context.SaveChanges();
+            return CreatedAtAction("get",note);
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public IActionResult Put(int id, [FromBody]Note note)
         {
+            _context.Notes.Update(note);
+            _context.SaveChanges();
+            return new NoContentResult();
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
+            var note = (from n in _context.Notes
+                        where n.Id == id
+                        select n).FirstOrDefault();
+            if (note == null)
+                return NotFound();
+            _context.Notes.Remove(note);
+            _context.SaveChanges();
+            return new NoContentResult();
         }
 
     }
